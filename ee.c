@@ -7,7 +7,7 @@
 #define   SECTOR                1
 #define   PAGE_NUM              2
 
-#if defined(STM32F103xB)
+//#if defined(STM32F103xB)
 #define   _EE_SIZE              1024
 #define   _EE_ADDR_INUSE        (((uint32_t)0x08000000) | (_EE_SIZE * _EE_USE_FLASH_PAGE_OR_SECTOR))
 #define   _EE_FLASH_BANK        FLASH_BANK_1
@@ -15,7 +15,7 @@
 #if (_EE_USE_FLASH_PAGE_OR_SECTOR > 127)
 #error  "Please Enter correct address, maximum is (127)"
 #endif
-#endif
+//#endif
 
 #if defined(STM32F103x8)
 #define   _EE_SIZE          	1024
@@ -203,7 +203,7 @@ bool ee_init(void)
 bool ee_format(bool keepRamData)
 {
   uint32_t error;
-  HAL_FLASH_Unlock();
+  flash_unlock();
   FLASH_EraseInitTypeDef flashErase;
 #if _EE_PAGE_OR_SECTOR == PAGE
 	flashErase.NbPages = 1;
@@ -226,7 +226,7 @@ bool ee_format(bool keepRamData)
 #endif
   if (HAL_FLASHEx_Erase(&flashErase, &error) == HAL_OK)
   {
-    HAL_FLASH_Lock();
+    flash_lock();
     if (error != 0xFFFFFFFF)
       return false;
     else
@@ -238,7 +238,7 @@ bool ee_format(bool keepRamData)
       return true;
     }
   }
-  HAL_FLASH_Lock();
+  flash_lock();
   return false;
 }
 //##########################################################################################################
@@ -267,13 +267,13 @@ bool ee_write(uint32_t startVirtualAddress, uint32_t len, uint8_t *data)
     return false;
   if (data == NULL)
     return false;
-  HAL_FLASH_Unlock();
+  flash_unlock();
 #ifdef FLASH_TYPEPROGRAM_BYTE
   for (uint32_t i = 0; i < len ; i++)
   {		
     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, ((i + startVirtualAddress)) + _EE_ADDR_INUSE, (uint64_t)(data[i])) != HAL_OK)
     {
-      HAL_FLASH_Lock();
+      flash_lock();
       return false;
     }
   }	
@@ -283,7 +283,7 @@ bool ee_write(uint32_t startVirtualAddress, uint32_t len, uint8_t *data)
   {		
     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, ((i + startVirtualAddress)) + _EE_ADDR_INUSE, (uint64_t)(data[i] | (data[i+1] << 8))) != HAL_OK)
     {
-      HAL_FLASH_Lock();
+      flash_lock();
       return false;
     }
   }	
@@ -301,12 +301,12 @@ bool ee_write(uint32_t startVirtualAddress, uint32_t len, uint8_t *data)
     data64 += data[i + 7] * 0x100000000000000;
     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, ((i + startVirtualAddress)) + _EE_ADDR_INUSE, data64) != HAL_OK)
     {
-      HAL_FLASH_Lock();
+      flash_lock();
       return false;
     }
   }
 #endif
-  HAL_FLASH_Lock();
+  flash_lock();
   return true;
 }
 //##########################################################################################################

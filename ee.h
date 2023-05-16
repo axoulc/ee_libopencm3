@@ -32,7 +32,8 @@
 #endif
 
 #include <stdbool.h>
-#include "main.h"
+#include <stdint.h>
+#include <libopencm3/stm32/flash.h>
 
 //################################################################################################################
 bool      ee_init(void);
