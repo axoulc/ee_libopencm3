@@ -203,6 +203,7 @@ bool ee_format(bool keepRamData) {
         flash_lock();
         return false;
     }
+    flash_lock();
 #if (_EE_USE_RAM_BYTE > 0)
     if (keepRamData == false)
         memset(ee_ram, 0xFF, _EE_USE_RAM_BYTE);
